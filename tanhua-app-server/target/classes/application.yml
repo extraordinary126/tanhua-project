@@ -1,0 +1,56 @@
+#服务端口
+server:
+  port: 18080
+spring:
+  application:
+    name: tanhua-app-server
+  redis:  #redis配置
+    port: 6380
+    host: 120.48.65.245
+  mail: #发邮件的配置
+    default-encoding: UTF-8
+    host: smtp.163.com
+    password: CTWHBUHGWCQHIOWQ
+    port: 465
+    properties:
+      mail:
+        debug: false
+        mime:
+          splitlongparameters: false
+        smtp:
+          auth: false
+    protocol: smtps
+    test-connection: false
+    username: yuhao_work1@163.com
+  cloud:  #nacos配置
+    nacos:
+      discovery:
+        server-addr: 192.168.10.125:8848
+  batch:
+    job:
+      enabled: false
+dubbo:    #dubbo配置
+  protocol:
+    port: 20880 # dubbo服务端口
+    name: dubbo # dubbo服务协议名称
+  registry:
+    address: nacos://192.168.10.125:8848
+  consumer:
+    check: false
+#tanhua:
+#  sms:
+#    signName: 物流云商
+#    templateCode: SMS_106590012
+#    accessKey: LTAI4GKgob9vZ53k2SZdyAC7
+#    secret: LHLBvXmILRoyw0niRSBuXBZewQ30la
+tanhua:
+  oss:
+    accessKey: LTAI5tQgnbNQvJ1mGv34qGNG
+    secret: LeMKlCtHzjEKqTJnBTqlDjj6lIhGxN
+    endpoint: oss-cn-hangzhou.aliyuncs.com
+    bucketName: tanhuatanhua111
+    url: https://tanhuatanhua111.oss-cn-hangzhou.aliyuncs.com/
+  aip:
+    appId: 27223159
+    apiKey: uquLg0GObdN5P92R1xaNDCB8
+    secretKey: p3ptWxdCplCjNH8GGHlBgiZlXsjRX9q8

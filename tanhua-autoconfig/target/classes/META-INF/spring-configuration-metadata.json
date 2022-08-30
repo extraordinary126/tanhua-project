@@ -1,0 +1,37 @@
+{
+  "groups": [
+    {
+      "name": "tanhua.oss",
+      "type": "com.yuhao.tanhua.autoconfig.properties.OssProperties",
+      "sourceType": "com.yuhao.tanhua.autoconfig.properties.OssProperties"
+    }
+  ],
+  "properties": [
+    {
+      "name": "tanhua.oss.access-key",
+      "type": "java.lang.String",
+      "sourceType": "com.yuhao.tanhua.autoconfig.properties.OssProperties"
+    },
+    {
+      "name": "tanhua.oss.bucket-name",
+      "type": "java.lang.String",
+      "sourceType": "com.yuhao.tanhua.autoconfig.properties.OssProperties"
+    },
+    {
+      "name": "tanhua.oss.endpoint",
+      "type": "java.lang.String",
+      "sourceType": "com.yuhao.tanhua.autoconfig.properties.OssProperties"
+    },
+    {
+      "name": "tanhua.oss.secret",
+      "type": "java.lang.String",
+      "sourceType": "com.yuhao.tanhua.autoconfig.properties.OssProperties"
+    },
+    {
+      "name": "tanhua.oss.url",
+      "type": "java.lang.String",
+      "sourceType": "com.yuhao.tanhua.autoconfig.properties.OssProperties"
+    }
+  ],
+  "hints": []
+}
