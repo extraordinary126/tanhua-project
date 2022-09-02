@@ -1,0 +1,22 @@
+server:
+  port: 18082
+spring:
+  application:
+    name: tanhua-dubbo-mongo
+  data:
+    mongodb:                            #数据库名字
+      uri: mongodb://192.168.10.125:27017/tanhua
+  cloud:
+    nacos:
+      discovery:
+        server-addr: 192.168.10.125:8848
+dubbo:    #dubbo配置
+  protocol:
+    port: 20882  # dubbo服务端口
+    name: dubbo # dubbo服务协议名称
+  registry:
+    address: nacos://192.168.10.125:8848
+  consumer:
+    check: false
+  scan:
+    base-packages: com.yuhao.api  #dubbo中包扫描

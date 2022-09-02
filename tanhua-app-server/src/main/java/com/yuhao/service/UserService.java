@@ -66,7 +66,7 @@ public class UserService {
             isNew = true;
         }
         //6. 通过JWT生成token
-        Map<String,Object> tokenMap = new HashMap();
+        Map<String,Object> tokenMap = new HashMap<>();
         tokenMap.put("id", user.getId());
         tokenMap.put("mobile", phone);
         String token = JwtUtils.getToken(tokenMap);

@@ -17,6 +17,8 @@ public class UserController {
 
     /**
      * 保存用户信息
+     *
+     *
      * /user/loginReginfo  POST
      * Headers
      * Content-Type	application/json	是
@@ -49,6 +51,7 @@ public class UserController {
         return ResponseEntity.ok(null);
     }
 
+    //上传头像
     ///user/loginReginfo/head
     @PostMapping("/loginReginfo/head")
     public ResponseEntity uploadHead(@RequestBody MultipartFile headPhoto,

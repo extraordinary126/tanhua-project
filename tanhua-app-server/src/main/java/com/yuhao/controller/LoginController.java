@@ -15,7 +15,7 @@ import java.util.Map;
 public class LoginController {
 
     @Autowired
-    private  UserService userService;
+    private UserService userService;
 
     /**
      * 用户登录 获取验证码

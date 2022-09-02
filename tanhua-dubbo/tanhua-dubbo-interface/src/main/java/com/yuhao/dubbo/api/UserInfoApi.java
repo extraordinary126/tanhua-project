@@ -1,6 +1,5 @@
 package com.yuhao.dubbo.api;
 
-import com.yuhao.VO.UserInfoVO;
 import com.yuhao.bean.UserInfo;
 
 public interface UserInfoApi {
@@ -9,6 +8,6 @@ public interface UserInfoApi {
 
     void update(UserInfo userInfo);
 
-    UserInfoVO getUserInfo(Long id);
+    UserInfo getUserInfo(Long id);
 
 }

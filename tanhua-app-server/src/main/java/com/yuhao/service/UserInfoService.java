@@ -8,6 +8,7 @@ import com.yuhao.exception.BuinessException;
 import com.yuhao.tanhua.autoconfig.template.AipFaceTemplate;
 import com.yuhao.tanhua.autoconfig.template.OssTemplate;
 import org.apache.dubbo.config.annotation.DubboReference;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -56,7 +57,14 @@ public class UserInfoService {
     }
 
     public UserInfoVO getUserInfo(Long id){
-        return userInfoApi.getUserInfo(id);
+        UserInfo userInfo = userInfoApi.getUserInfo(id);
+        UserInfoVO vo = new UserInfoVO();
+        //将userinfo 中的值 copy到 vo中  非同名同类型的不会copy
+        BeanUtils.copyProperties(userInfo, vo);
+        if (userInfo.getAge() != null){
+            vo.setAge(userInfo.getAge().toString());
+        }
+        return vo;
     }
 
     public void update(UserInfo userInfo) {
