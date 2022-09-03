@@ -1,5 +1,6 @@
 package com.yuhao.api;
 
+import com.yuhao.VO.PageResult;
 import com.yuhao.bean.Mongo.RecommendUser;
 import com.yuhao.dubbo.api.RecommendUserApi;
 import org.apache.dubbo.config.annotation.DubboService;
@@ -8,6 +9,8 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
+
+import java.util.List;
 
 @DubboService
 public class RecommendUserApiImpl implements RecommendUserApi {
@@ -26,5 +29,24 @@ public class RecommendUserApiImpl implements RecommendUserApi {
         //调用MongoTemplate查询
         RecommendUser one = mongoTemplate.findOne(query, RecommendUser.class);
         return one;
+    }
+
+    //mongodb 分页查询
+    @Override
+    public PageResult getRecommendUserList(Integer page, Integer pagesize, Long toUserId) {
+        //1.构建 Criteria对象
+        Criteria criteria = Criteria.where("toUserId").is(toUserId);
+        //2.构建 Query对象
+        Query query = Query.query(criteria);
+//                .skip((page - 1) * pagesize)
+//                .limit(pagesize);
+        //3.查询总数
+        long count = mongoTemplate.count(query, RecommendUser.class);
+        //4.查询数据列表
+         query.limit((page - 1) * pagesize)
+                .skip(pagesize);
+        List<RecommendUser> list = mongoTemplate.find(query, RecommendUser.class);
+        //5.构造返回值
+        return new PageResult(page, pagesize, (int) count ,list);
     }
 }

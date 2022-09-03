@@ -55,7 +55,7 @@ public class UserInfoService {
             e.printStackTrace();
         }
     }
-
+    //根据id查询用户信息
     public UserInfoVO getUserInfo(Long id){
         UserInfo userInfo = userInfoApi.getUserInfo(id);
         UserInfoVO vo = new UserInfoVO();

@@ -11,7 +11,7 @@ import java.util.List;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class PageResult implements Serializable {
+public class  PageResult implements Serializable {
 
     private Integer counts = 0;//总记录数
     private Integer pagesize;//页大小

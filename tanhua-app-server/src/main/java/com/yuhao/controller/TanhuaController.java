@@ -1,6 +1,8 @@
 package com.yuhao.controller;
 
+import com.yuhao.VO.PageResult;
 import com.yuhao.VO.TodayBest;
+import com.yuhao.dto.RecommendUserDto;
 import com.yuhao.service.TanhuaService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -21,5 +23,12 @@ public class TanhuaController {
 
         TodayBest todayBestVO = tanhuaService.getTodayBest();
         return ResponseEntity.ok(todayBestVO);
+    }
+
+    ///tanhua/recommendation  推荐朋友  get
+    @GetMapping("/recommendation")
+    public ResponseEntity recommendation(RecommendUserDto recommendUserDto){
+        PageResult pageResult = tanhuaService.recommendation(recommendUserDto);
+        return ResponseEntity.ok(pageResult);
     }
 }
