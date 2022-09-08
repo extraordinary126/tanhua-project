@@ -7,6 +7,7 @@ spring:
   redis:  #redis配置
     port: 6380
     host: 120.48.65.245
+    timeout: 1000
   mail: #发邮件的配置
     default-encoding: UTF-8
     host: smtp.163.com

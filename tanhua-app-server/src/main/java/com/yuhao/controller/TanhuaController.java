@@ -20,7 +20,6 @@ public class TanhuaController {
     //今日佳人 返回得分最高的
     @GetMapping("/todayBest")
     public ResponseEntity getTodayBest(){
-
         TodayBest todayBestVO = tanhuaService.getTodayBest();
         return ResponseEntity.ok(todayBestVO);
     }

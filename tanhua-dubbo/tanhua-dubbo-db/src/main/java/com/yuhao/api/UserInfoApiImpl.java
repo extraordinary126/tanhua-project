@@ -41,7 +41,7 @@ public class UserInfoApiImpl implements UserInfoApi {
     }
 
     //批量查询userinfo  查出所有相关联的符合条件的 用户信息 存入map
-    @Override                   //要查询的id放入List        条件封装到UserInfo对象中
+    @Override                   //要查询的id放入List          查询条件封装到UserInfo对象中
     public Map<Long, UserInfo> getUserInfoMap(List<Long> userIds, UserInfo userinfo) {
         LambdaQueryWrapper<UserInfo> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.in(UserInfo::getId, userIds);

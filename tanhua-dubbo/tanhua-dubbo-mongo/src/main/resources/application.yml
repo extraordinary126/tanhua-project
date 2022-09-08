@@ -6,6 +6,7 @@ spring:
   data:
     mongodb:                            #数据库名字
       uri: mongodb://192.168.10.125:27017/tanhua
+
   cloud:
     nacos:
       discovery:
