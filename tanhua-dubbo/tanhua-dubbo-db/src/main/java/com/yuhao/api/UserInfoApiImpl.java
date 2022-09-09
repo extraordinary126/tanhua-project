@@ -53,6 +53,10 @@ public class UserInfoApiImpl implements UserInfoApi {
             if (!StringUtils.isEmpty(userinfo.getGender())){
                 queryWrapper.eq(UserInfo::getGender, userinfo.getGender());
             }
+            // 新加的 根据id模糊查询
+            if (!(userinfo.getNickname() == null || userinfo.getNickname().equals(""))){
+                queryWrapper.like(UserInfo::getNickname, userinfo.getNickname());
+            }
         }
         List<UserInfo> userInfos = userInfoMapper.selectList(queryWrapper);
         //转换为map集合 将id作为key

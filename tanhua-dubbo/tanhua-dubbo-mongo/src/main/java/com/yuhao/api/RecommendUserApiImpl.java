@@ -49,4 +49,20 @@ public class RecommendUserApiImpl implements RecommendUserApi {
         //5.构造返回值
         return new PageResult(page, pagesize, (int) count ,list);
     }
+
+    @Override
+    public RecommendUser getTwoPeopleScore(Long userId, Long toUserId) {
+        Query query = Query.query(Criteria.where("userId").is(userId).and("toUserId").is(toUserId));
+        RecommendUser recommendUser = mongoTemplate.findOne(query, RecommendUser.class);
+        if (recommendUser == null){
+            //如果没有推荐的 那么随机建立一个推荐
+            recommendUser = new RecommendUser();
+            //推荐表构建两人id联系
+            recommendUser.setUserId(userId);
+            recommendUser.setToUserId(toUserId);
+            //给一个缘分值
+            recommendUser.setScore(90D);
+        }
+        return recommendUser;
+    }
 }

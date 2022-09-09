@@ -27,7 +27,7 @@ public class LoginController {
     @PostMapping("/login")
     public ResponseEntity login(@RequestBody Map map){
         String phone = (String) map.get("phone");
-        userService.sendMsg(phone);
+         userService.sendMsg(phone);
         //ResponseEntity spring定义的响应实体对象
         //return ResponseEntity.status(500).body("出错了");
         return ResponseEntity.ok(null); //正常返回状态码200

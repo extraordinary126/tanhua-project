@@ -144,4 +144,17 @@ public class CommentApiImpl implements CommentApi {
         }
         return null;
     }
+
+    //    //查询谁给我点赞 评论 喜欢了 传入我的id  ,查询谁和我互动了
+    @Override
+    public List<Comment> getCommentsList(Long publishUserId, Integer page, Integer pagesize, CommentType commentType) {
+        Query query = Query.query(Criteria
+                .where("publishUserId").is(publishUserId)
+                .and("commentType").is(commentType.getType()))
+                .limit(pagesize)
+                .skip((page - 1) * pagesize)
+                .with(Sort.by(Sort.Order.desc("created")));
+        List<Comment> commentList = mongoTemplate.find(query, Comment.class);
+        return commentList;
+    }
 }

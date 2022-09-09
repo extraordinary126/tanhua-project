@@ -22,4 +22,7 @@ public interface CommentApi {
     Integer commentLike(String commentId);
 
     Integer commentDislike(String commentId);
+
+    //查询谁给我点赞 评论 喜欢了 传入我的id  ,查询谁和我互动了
+    List<Comment> getCommentsList(Long publishUserId, Integer page, Integer pagesize, CommentType commentType);
 }

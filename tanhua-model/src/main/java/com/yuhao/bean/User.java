@@ -13,4 +13,8 @@ public class User extends BasePojo {     //dubbo传输需要实现序列化
     private String mobile;
     private String password;
 
+    //环信用户信息
+    private String hxUser;
+    private String hxPassword;
+
 }

@@ -2,9 +2,11 @@ package com.yuhao.service;
 
 import com.yuhao.VO.ErrorResult;
 import com.yuhao.bean.User;
+import com.yuhao.common.utils.Constants;
 import com.yuhao.common.utils.JwtUtils;
 import com.yuhao.dubbo.api.UserApi;
 import com.yuhao.exception.BuinessException;
+import com.yuhao.tanhua.autoconfig.template.HuanXinTemplate;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang.StringUtils;
@@ -29,6 +31,9 @@ public class UserService {
 
     @DubboReference
     UserApi userApi;
+
+    @Autowired
+    HuanXinTemplate huanXinTemplate;
 
     public void sendMsg(String phone){
         String code = "123456";
@@ -64,6 +69,14 @@ public class UserService {
             Long userId = userApi.save(user);
             user.setId(userId);
             isNew = true;
+
+            String hxUser = "hx" + user.getId();
+            Boolean isCreated = huanXinTemplate.createUser(hxUser, Constants.INIT_PASSWORD);///123456
+            if (isCreated){
+                user.setHxUser(hxUser);
+                user.setHxPassword(Constants.INIT_PASSWORD);
+                userApi.save(user);
+            }
         }
         //6. 通过JWT生成token
         Map<String,Object> tokenMap = new HashMap<>();

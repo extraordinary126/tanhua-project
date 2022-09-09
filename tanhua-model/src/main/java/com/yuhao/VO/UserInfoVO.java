@@ -20,7 +20,7 @@ public class UserInfoVO extends BasePojo {
     private String birthday; //生日
     private String gender; //性别
 
-    private String age; //年龄
+    private String age; //年龄  这个和UserInfo数据类型不同
 
     private String city; //城市
     private String income; //收入

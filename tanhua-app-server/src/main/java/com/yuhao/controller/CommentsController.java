@@ -15,7 +15,7 @@ public class CommentsController {
     @Autowired
     CommentsService commentsService;
 
-    //      /comments POST 提交评论
+    //    /comments POST 提交评论
     @PostMapping
     public ResponseEntity comments(@RequestBody Map map){
         String movementId = (String) map.get("movementId"); //动态编号

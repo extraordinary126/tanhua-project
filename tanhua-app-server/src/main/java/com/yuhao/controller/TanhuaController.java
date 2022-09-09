@@ -6,9 +6,9 @@ import com.yuhao.dto.RecommendUserDto;
 import com.yuhao.service.TanhuaService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.Map;
 
 @RestController
 @RequestMapping("/tanhua")
@@ -29,5 +29,30 @@ public class TanhuaController {
     public ResponseEntity recommendation(RecommendUserDto recommendUserDto){
         PageResult pageResult = tanhuaService.recommendation(recommendUserDto);
         return ResponseEntity.ok(pageResult);
+    }
+
+    //tanhua/:id/personalInfo
+    //查看佳人信息
+    @GetMapping("/{id}/personalInfo")
+    public ResponseEntity personalInfo(@PathVariable Long id){
+        TodayBest todayBest = tanhuaService.getPersonalInfo(id);
+        return ResponseEntity.ok(todayBest);
+    }
+
+    ///tanhua/strangerQuestions
+    @GetMapping("/strangerQuestions")
+    public ResponseEntity getStrangerQuestions(Long userId){
+        String question = tanhuaService.getStrangerQuestions(userId);
+        return ResponseEntity.ok(question);
+    }
+
+    ///tanhua/strangerQuestions
+    @PostMapping("/strangerQuestions")
+    public ResponseEntity replyStrangerQuestions(@RequestBody Map map){
+        String obj = map.get("userId").toString();   //感兴趣的用户id
+        Long userId = Long.valueOf(obj);
+        String reply = (String) map.get("reply");       //回复的内容
+        tanhuaService.replyStrangerQuestions(userId, reply);
+        return ResponseEntity.ok(null);
     }
 }

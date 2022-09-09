@@ -1,17 +1,26 @@
 package com.yuhao.service;
 
+import com.alibaba.fastjson.JSON;
+import com.yuhao.VO.ErrorResult;
 import com.yuhao.VO.PageResult;
 import com.yuhao.VO.TodayBest;
 import com.yuhao.bean.Mongo.RecommendUser;
+import com.yuhao.bean.Question;
 import com.yuhao.bean.UserInfo;
+import com.yuhao.common.utils.Constants;
 import com.yuhao.dto.RecommendUserDto;
+import com.yuhao.dubbo.api.QuestionApi;
 import com.yuhao.dubbo.api.RecommendUserApi;
 import com.yuhao.dubbo.api.UserInfoApi;
+import com.yuhao.exception.BuinessException;
 import com.yuhao.interceptor.UserThreadLocalHolder;
+import com.yuhao.tanhua.autoconfig.template.HuanXinTemplate;
 import org.apache.dubbo.config.annotation.DubboReference;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -24,6 +33,11 @@ public class TanhuaService {
     @DubboReference
     private UserInfoApi userInfoApi;
 
+    @DubboReference
+    private QuestionApi questionApi;
+
+    @Autowired
+    HuanXinTemplate huanXinTemplate;
 
     public TodayBest getTodayBest() {
         //1.获取当前userId
@@ -34,7 +48,7 @@ public class TanhuaService {
             //如果没有推荐的用户 那么设置一个默认值
             recommendUser = new RecommendUser();
             recommendUser.setUserId(1L);
-            recommendUser.setScore(0D);
+            recommendUser.setScore(90D);
         }
         //将RecommendUser对象转换为TodayBest  VO对象返回
         //VO对象中包含了UserInfo对象的信息
@@ -108,5 +122,42 @@ public class TanhuaService {
         //8构造返回值
         pr.setItems(returnList);
         return pr;
+    }
+
+    //查看佳人信息
+    public TodayBest getPersonalInfo(Long userId) {
+        Long toUserId = UserThreadLocalHolder.getId();
+        UserInfo userInfo = userInfoApi.getUserInfo(userId);
+        RecommendUser recommendUser = recommendUserApi.getTwoPeopleScore(userId, toUserId);
+        TodayBest todayBest = TodayBest.init(userInfo, recommendUser);
+        return todayBest;
+    }
+
+    //查询用户的陌生人问题 tb_question表
+    public String getStrangerQuestions(Long userId) {
+        Question question = questionApi.getByUserId(userId);
+        return question == null ? "该用户没有填写陌生人问题"  :  question.getTxt();
+    }
+
+    //回复陌生人问题
+    //要回复给的用户的id   回复内容
+    public void replyStrangerQuestions(Long targetUserId, String reply) {
+        // 1. 构造消息数据(JSON)
+        Long userId = UserThreadLocalHolder.getId();
+
+        Map<String, Object> map = new HashMap<>();
+        UserInfo userInfo = userInfoApi.getUserInfo(userId);
+        map.put("userId", userId);
+        map.put("huanXinId", Constants.HX_USER_PREFIX + userId);
+        map.put("nickname", userInfo.getNickname());
+        map.put("strangerQuestion", getStrangerQuestions(targetUserId));
+        map.put("reply", reply);
+        String jsonMessage = JSON.toJSONString(map);
+        //2. 调用template 通过环信完成消息的发送(加好友的消息)
+        //username: 接收方的用户id    , content: 发送的消息
+        Boolean flag = huanXinTemplate.sendMsg(Constants.HX_USER_PREFIX + targetUserId, jsonMessage);
+        if (!flag){
+            throw new BuinessException(ErrorResult.error());
+        }
     }
 }

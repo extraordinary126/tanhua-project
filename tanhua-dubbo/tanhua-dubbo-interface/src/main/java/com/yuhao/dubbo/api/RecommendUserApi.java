@@ -8,4 +8,6 @@ public interface RecommendUserApi {
     RecommendUser queryWithMaxScore(Long toUserID);
 
     PageResult getRecommendUserList(Integer page, Integer pagesize, Long toUserId);
+
+    RecommendUser getTwoPeopleScore(Long userId, Long toUserId);
 }
