@@ -9,6 +9,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.Map;
+
 @RestController
 @RequestMapping("/users")
 public class UsersController {
@@ -28,6 +30,8 @@ public class UsersController {
      *
      * 返回值
      */
+
+
     @GetMapping
     public ResponseEntity getUserInfo( Long userID,    // long?
                                       @RequestHeader("Authorization") String token){
@@ -73,5 +77,13 @@ public class UsersController {
         userInfo.setId(id);
         userInfoService.updateHead(headPhoto, id);
         return ResponseEntity.ok(null);
+    }
+
+    // /users/counts
+    //统计喜欢数 被喜欢数  互相喜欢数
+    @GetMapping("/counts")
+    public ResponseEntity getCounts(){
+        Map<String ,Integer> count = userInfoService.getCounts();
+        return ResponseEntity.ok(count);
     }
 }

@@ -15,7 +15,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 public class RecommendUser implements java.io.Serializable {
     @Id
     private ObjectId id; //主键id
-    private Long userId; //推荐出的用户id
+    private Long userId; //推荐给当前用户 的用户id
     private Long toUserId; //当前用户id
     private Double score =0d; //推荐得分
     private String date; //日期

@@ -1,5 +1,6 @@
 package com.yuhao.controller;
 
+import com.yuhao.VO.NearUserVo;
 import com.yuhao.VO.PageResult;
 import com.yuhao.VO.TodayBest;
 import com.yuhao.dto.RecommendUserDto;
@@ -8,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -54,5 +56,38 @@ public class TanhuaController {
         String reply = (String) map.get("reply");       //回复的内容
         tanhuaService.replyStrangerQuestions(userId, reply);
         return ResponseEntity.ok(null);
+    }
+    /**
+     * 探花-推荐用户列表
+     */
+    @GetMapping("/cards")
+    public ResponseEntity queryCardsList() {
+        List<TodayBest> list = tanhuaService.queryCardsList();
+        return ResponseEntity.ok(list);
+    }
+
+    ///tanhua/:id/love
+    //左滑喜欢
+    @GetMapping("/{id}/love")
+    public ResponseEntity rightLove(@PathVariable("id") Long id){
+        tanhuaService.rightLove(id);
+        return ResponseEntity.ok(null);
+    }
+    ///tanhua/:id/love
+    //左滑喜欢
+    @GetMapping("/{id}/unlove")
+    public ResponseEntity leftUnlove(@PathVariable("id") Long id){
+        tanhuaService.leftUnlove(id);
+        return ResponseEntity.ok(null);
+    }
+
+    /**
+     * 搜附近
+     */
+    @GetMapping("/search")
+    public ResponseEntity<List<NearUserVo>> queryNearUser(String gender,
+                                                          @RequestParam(defaultValue = "2000") String distance) {
+        List<NearUserVo> list = this.tanhuaService.queryNearUser(gender, distance);
+        return ResponseEntity.ok(list);
     }
 }

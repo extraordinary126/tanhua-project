@@ -4,7 +4,9 @@ import com.yuhao.VO.ErrorResult;
 import com.yuhao.VO.UserInfoVO;
 import com.yuhao.bean.UserInfo;
 import com.yuhao.dubbo.api.UserInfoApi;
+import com.yuhao.dubbo.api.UserLikeApi;
 import com.yuhao.exception.BuinessException;
+import com.yuhao.interceptor.UserThreadLocalHolder;
 import com.yuhao.tanhua.autoconfig.template.AipFaceTemplate;
 import com.yuhao.tanhua.autoconfig.template.OssTemplate;
 import org.apache.dubbo.config.annotation.DubboReference;
@@ -15,19 +17,23 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.Map;
 
 @Service
 public class UserInfoService {
 
     @DubboReference
-    UserInfoApi userInfoApi;
+    private UserInfoApi userInfoApi;
 
     @Autowired
-    OssTemplate ossTemplate;
+    private OssTemplate ossTemplate;
 
 
     @Autowired
-    AipFaceTemplate aipFaceTemplate;
+    private AipFaceTemplate aipFaceTemplate;
+
+    @DubboReference
+    private UserLikeApi userLikeApi;
 
     public void save(UserInfo userInfo){
         userInfoApi.save(userInfo);
@@ -69,5 +75,11 @@ public class UserInfoService {
 
     public void update(UserInfo userInfo) {
         userInfoApi.update(userInfo);
+    }
+
+    public Map<String, Integer> getCounts() {
+        Long currentUserId = UserThreadLocalHolder.getId();
+        Map<String, Integer> count = userLikeApi.getLikeCount(currentUserId);
+        return count;
     }
 }

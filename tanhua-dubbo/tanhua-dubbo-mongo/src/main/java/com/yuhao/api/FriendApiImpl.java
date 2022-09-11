@@ -52,4 +52,12 @@ public class FriendApiImpl implements FriendApi {
             List<Friend> friendList = mongoTemplate.find(query, Friend.class);
             return friendList;
     }
+
+    @Override
+    public void deleteFriend(Long currentUserId, Long likeUserId) {
+        Query query1 = Query.query(Criteria.where("userId").is(currentUserId).and("friendId").is(likeUserId));
+        Query query2 = Query.query(Criteria.where("userId").is(likeUserId).and("friendId").is(currentUserId));
+        mongoTemplate.remove(query1, Friend.class);
+        mongoTemplate.remove(query2, Friend.class);
+    }
 }

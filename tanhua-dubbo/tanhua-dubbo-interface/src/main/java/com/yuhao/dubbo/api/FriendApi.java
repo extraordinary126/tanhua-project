@@ -11,4 +11,7 @@ public interface FriendApi {
 
     //查询好友 根据keyword
     List<Friend> queryFriends(Long userId, Integer page, Integer pagesize);
+
+    //删除好友
+    void deleteFriend(Long currentUserId, Long likeUserId);
 }

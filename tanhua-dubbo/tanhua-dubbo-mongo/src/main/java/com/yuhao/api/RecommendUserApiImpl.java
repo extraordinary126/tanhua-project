@@ -1,12 +1,17 @@
 package com.yuhao.api;
 
+import cn.hutool.core.collection.CollUtil;
 import com.yuhao.VO.PageResult;
 import com.yuhao.bean.Mongo.RecommendUser;
+import com.yuhao.bean.Mongo.UserLike;
 import com.yuhao.dubbo.api.RecommendUserApi;
 import org.apache.dubbo.config.annotation.DubboService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.aggregation.Aggregation;
+import org.springframework.data.mongodb.core.aggregation.AggregationResults;
+import org.springframework.data.mongodb.core.aggregation.TypedAggregation;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 
@@ -17,6 +22,9 @@ public class RecommendUserApiImpl implements RecommendUserApi {
 
     @Autowired
     MongoTemplate mongoTemplate;
+
+    @Autowired
+    RecommendUserApi recommendUserApi;
 
     //查询今日佳人
     @Override
@@ -64,5 +72,24 @@ public class RecommendUserApiImpl implements RecommendUserApi {
             recommendUser.setScore(90D);
         }
         return recommendUser;
+    }
+
+    @Override
+    public List<RecommendUser> queryCardsList(Long id, int counts) {
+        //1. 排除已经喜欢 和 不喜欢的用户
+        Query query = Query.query(Criteria.where("userId").is(id));
+        List<UserLike> userLikeList = mongoTemplate.find(query, UserLike.class);
+        //得到喜欢或不喜欢过的用户idList
+        List<Long> userIdList = CollUtil.getFieldValues(userLikeList, "likeUserId", Long.class);
+        //2.随机展示
+        Criteria criteria = Criteria.where("toUserId").is(id).and("userId").nin(userIdList);
+        //3.使用统计函数,随机获取推荐的用户列表
+        TypedAggregation<RecommendUser> aggregation = Aggregation.newAggregation(RecommendUser.class,
+                Aggregation.match(criteria),     //构造查询条件
+                Aggregation.sample(counts)
+        );
+        AggregationResults<RecommendUser> results = mongoTemplate.aggregate(aggregation, RecommendUser.class);
+        List<RecommendUser> mappedResults = results.getMappedResults();
+        return mappedResults;
     }
 }

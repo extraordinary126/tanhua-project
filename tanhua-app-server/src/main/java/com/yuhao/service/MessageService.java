@@ -158,4 +158,9 @@ public class MessageService {
         }
         return new PageResult(page, pagesize, 0, voList);
     }
+
+    public void deleteFriend(Long likeUserId) {
+        Long currentUserId = UserThreadLocalHolder.getId();
+        huanXinTemplate.deleteContact(Constants.HX_USER_PREFIX + likeUserId, Constants.HX_USER_PREFIX + likeUserId);
+    }
 }

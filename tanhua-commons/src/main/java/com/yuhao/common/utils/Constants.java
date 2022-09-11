@@ -41,5 +41,9 @@ public class Constants {
 
     //jwt超时时间
     public static final int JWT_TIME_OUT = 3_600;
+
+    public static final String USER_LIKE_KEY = "USER_LIKE_KEY_";
+
+    public static final String USER_NOT_LIKE_KEY = "USER_NOT_LIKE_KEY_";
 }
 

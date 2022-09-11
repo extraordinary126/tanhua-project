@@ -45,6 +45,9 @@ dubbo:    #dubbo配置
 #    accessKey: LTAI4GKgob9vZ53k2SZdyAC7
 #    secret: LHLBvXmILRoyw0niRSBuXBZewQ30la
 tanhua:
+  default:
+    recommend:
+      users: 2,3,8,10,18,20,24,29,27,32,36,37,56,64,75,88
   oss:
     accessKey: LTAI5tQgnbNQvJ1mGv34qGNG
     secret: LeMKlCtHzjEKqTJnBTqlDjj6lIhGxN

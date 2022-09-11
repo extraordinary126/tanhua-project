@@ -1,7 +1,11 @@
 package com.yuhao.service;
 
+import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.convert.Convert;
+import cn.hutool.core.util.RandomUtil;
 import com.alibaba.fastjson.JSON;
 import com.yuhao.VO.ErrorResult;
+import com.yuhao.VO.NearUserVo;
 import com.yuhao.VO.PageResult;
 import com.yuhao.VO.TodayBest;
 import com.yuhao.bean.Mongo.RecommendUser;
@@ -9,14 +13,14 @@ import com.yuhao.bean.Question;
 import com.yuhao.bean.UserInfo;
 import com.yuhao.common.utils.Constants;
 import com.yuhao.dto.RecommendUserDto;
-import com.yuhao.dubbo.api.QuestionApi;
-import com.yuhao.dubbo.api.RecommendUserApi;
-import com.yuhao.dubbo.api.UserInfoApi;
+import com.yuhao.dubbo.api.*;
 import com.yuhao.exception.BuinessException;
 import com.yuhao.interceptor.UserThreadLocalHolder;
 import com.yuhao.tanhua.autoconfig.template.HuanXinTemplate;
 import org.apache.dubbo.config.annotation.DubboReference;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -37,7 +41,25 @@ public class TanhuaService {
     private QuestionApi questionApi;
 
     @Autowired
-    HuanXinTemplate huanXinTemplate;
+    private HuanXinTemplate huanXinTemplate;
+
+    @DubboReference
+    private UserLikeApi userLikeApi;
+
+    @DubboReference
+    private FriendApi friendApi;
+
+    @DubboReference
+    private UserLocationApi userLocationApi;
+
+    @Autowired
+    private MessageService messageService;
+
+    @Autowired
+    private RedisTemplate<String, String> redisTemplate;
+
+    @Value("${tanhua.default.recommend.users}")
+    private String recommendUser;
 
     public TodayBest getTodayBest() {
         //1.获取当前userId
@@ -63,7 +85,7 @@ public class TanhuaService {
     public PageResult recommendation(RecommendUserDto dto) {
         //1.获取当前userId
         Long toUserId = UserThreadLocalHolder.getId();
-        //2.调用recommenderUserApi完成分页查询列表   PageResult --> RecomendUser
+        //2.调用recommenderUserApi完成分页查询列表   PageResult 里有 RecomendUserList
         PageResult pr = recommendUserApi.getRecommendUserList(dto.getPage(),dto.getPagesize(),toUserId);
         //3.获取分页中的RecommendUser数据列表 items是存查出来的所有该用户的推荐用户
         List<RecommendUser> items = (List<RecommendUser>) pr.getItems();
@@ -107,7 +129,7 @@ public class TanhuaService {
         Map<Long, UserInfo> userInfoMap = userInfoApi.getUserInfoMap(userIdsList, userInfo);
         List<TodayBest > returnList = new ArrayList<>();
         //到这里 已经成功将初始的items 转换为 需要的userInfoMap
-        //7.循环推荐的数据列表 构建VO对象
+        //7.循环推荐的数据列表
         for (RecommendUser recommendUser : items) {
             //从所有推荐用户的数据中取出id
             Long idInAll = recommendUser.getUserId();
@@ -160,4 +182,105 @@ public class TanhuaService {
             throw new BuinessException(ErrorResult.error());
         }
     }
+
+    //查询出推荐的用户 排除掉user_like中已经互动过的
+    public List<TodayBest> queryCardsList() {
+        //1.调用推荐用户的api 查询用户 但是要排除已经喜欢或者不喜欢的 要有数量限制
+        List<RecommendUser> recommendUserList = recommendUserApi.queryCardsList(UserThreadLocalHolder.getId(), 10);
+        //2.如果没有推荐的 随机构建默认数据
+        if (recommendUserList == null || recommendUserList.size() == 0){
+            recommendUserList = new ArrayList<>();
+            String[] splitIds = recommendUser.split(",");
+            for (String userId : splitIds){
+                RecommendUser recommendUser = new RecommendUser();
+                recommendUser.setUserId(Convert.toLong(userId));
+                recommendUser.setToUserId(UserThreadLocalHolder.getId());
+                recommendUser.setScore(RandomUtil.randomDouble(60, 90));
+                recommendUserList.add(recommendUser);
+            }
+        }
+        //3.构造VO
+        //从推荐用户List提取出userIdList
+        List<Long> userIdList = CollUtil.getFieldValues(recommendUserList, "userId", Long.class);
+        Map<Long, UserInfo> userInfoMap = userInfoApi.getUserInfoMap(userIdList, null);
+
+        List<TodayBest> todayBestList = new ArrayList<>();
+        for (RecommendUser recommendUser : recommendUserList){
+            Long userId = recommendUser.getUserId();
+            UserInfo userInfo = userInfoMap.get(userId);
+            if (userInfo != null) {
+                TodayBest todayBest = TodayBest.init(userInfo, recommendUser);
+                todayBestList.add(todayBest);
+            }
+        }
+        return todayBestList;
+    }
+
+    //右划喜欢用户
+    public void rightLove(Long likeUserId) {
+        Long currentUserId = UserThreadLocalHolder.getId();
+        //1.调用api保存喜欢的数据               //true表示喜欢
+        Boolean flag = userLikeApi.saveOrUpdateLike(currentUserId, likeUserId, true);
+        if (!flag){
+            throw new BuinessException(ErrorResult.error());
+        }
+        //2.操作redis  写入喜欢的数据  同时如果之前已经不喜欢该用户 删除不喜欢的数据
+        //  (1 喜欢的集合 向里面添加   (2 不喜欢的集合  删除里面的不喜欢
+        redisTemplate.opsForSet().remove(Constants.USER_NOT_LIKE_KEY + currentUserId, likeUserId.toString());
+        redisTemplate.opsForSet().add(Constants.USER_LIKE_KEY + currentUserId, likeUserId.toString());
+        //3.如果该用户也喜欢了我 添加两人为好友
+        if (isLike(likeUserId, currentUserId)) {
+            //huanXinTemplate.addContact(Constants.HX_USER_PREFIX + currentUserId, likeUserId.toString());
+            //添加好友
+            messageService.addFriend(likeUserId);
+        }
+    }
+
+    public Boolean isLike(Long userId, Long likeUserId){
+        return redisTemplate.opsForSet().isMember(Constants.USER_LIKE_KEY + userId, likeUserId.toString());
+    }
+
+    //左滑不喜欢
+    public void leftUnlove(Long likeUserId) {
+        Long currentUserId = UserThreadLocalHolder.getId();
+        Boolean flag = userLikeApi.saveOrUpdateLike(currentUserId, likeUserId, false);
+        if (!flag){
+            throw new BuinessException(ErrorResult.error());
+        }
+        redisTemplate.opsForSet().remove(Constants.USER_LIKE_KEY + currentUserId, likeUserId.toString());
+        redisTemplate.opsForSet().add(Constants.USER_NOT_LIKE_KEY + currentUserId, likeUserId.toString());
+
+        //3.判断是否双向喜欢 如果是  那么删除好友
+        if (isLike(currentUserId, likeUserId) && isLike(likeUserId, currentUserId)){
+            //删除好友 删除自己的表和 环信的好友数据
+            friendApi.deleteFriend(currentUserId, likeUserId);
+            messageService.deleteFriend(likeUserId);
+        }
+    }
+
+    public List<NearUserVo> queryNearUser(String gender, String distance) {
+        //1. 调用api查询附近的用户 (也包括了自己)
+        List<Long> userIdsList = userLocationApi.getNearUser(UserThreadLocalHolder.getId(), Double.valueOf(distance));
+        //2.判断集合是否为空
+        if (CollUtil.isEmpty(userIdsList)){
+            return new ArrayList<>();
+        }
+        //3.调用userinfoApi查询用户详情
+        UserInfo userInfo = new UserInfo();
+        userInfo.setGender(gender);
+        Map<Long, UserInfo> userInfoMap = userInfoApi.getUserInfoMap(userIdsList, userInfo);
+        //4.构造vo对象
+        List<NearUserVo> voList = new ArrayList<>();
+        //移除当前用户的id
+        userIdsList.remove(UserThreadLocalHolder.getId());
+        for (Long id : userIdsList){
+            UserInfo info = userInfoMap.get(id);
+            if (info != null) {
+                NearUserVo vo = NearUserVo.init(info);
+                voList.add(vo);
+            }
+        }
+        return voList;
+    }
+
 }
