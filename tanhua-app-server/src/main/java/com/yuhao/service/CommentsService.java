@@ -1,13 +1,17 @@
 package com.yuhao.service;
 
+import cn.hutool.core.collection.CollUtil;
 import com.yuhao.VO.CommentVo;
 import com.yuhao.VO.ErrorResult;
 import com.yuhao.VO.PageResult;
+import com.yuhao.VO.VisitorsVo;
 import com.yuhao.bean.Mongo.Comment;
+import com.yuhao.bean.Mongo.Visitors;
 import com.yuhao.bean.UserInfo;
 import com.yuhao.common.utils.Constants;
 import com.yuhao.dubbo.api.CommentApi;
 import com.yuhao.dubbo.api.UserInfoApi;
+import com.yuhao.dubbo.api.VistorsApi;
 import com.yuhao.enums.CommentType;
 import com.yuhao.exception.BuinessException;
 import com.yuhao.interceptor.UserThreadLocalHolder;
@@ -30,6 +34,9 @@ public class CommentsService {
 
     @DubboReference
     UserInfoApi userInfoApi;
+
+    @DubboReference
+    VistorsApi vistorsApi;
 
     @Autowired
     RedisTemplate<String,String> redisTemplate;
@@ -193,4 +200,41 @@ public class CommentsService {
         Integer likeCount = commentApi.commentDislike(commentId);
         return likeCount;
     }
+
+    //查看谁看了我 (首页显示
+    public List<VisitorsVo> queryVisitorsList() {
+        // 如果已经点进去查看了完整的访客列表 那么会在redis中存放有具体的查看事件
+        //在这事件之前的访客就不用展示了
+        Long userId = UserThreadLocalHolder.getId();
+
+        //1.查询访问时间 redis
+        String key = Constants.VISITORS_USER;
+        String hashKey = String.valueOf(userId);
+        String value = (String) redisTemplate.opsForHash().get(key, hashKey);
+        Long date = null;
+        if (value != null){
+             date = Long.valueOf(value);
+        }
+        //2.根据访问时间 查询之后的访问者
+        List<Visitors> visitorsList = vistorsApi.getVisitorsList(date ,userId);
+        if (visitorsList == null || visitorsList.size() == 0){
+            return new ArrayList<>();
+        }
+        //3.老规矩 提取出用户idList  根据用户idList 查询用户的信息
+        List<Long> visitorUserIdList = CollUtil.getFieldValues(visitorsList, "visitorUserId", Long.class);
+        Map<Long, UserInfo> userInfoMap = userInfoApi.getUserInfoMap(visitorUserIdList, null);
+        //4.最后根据userinfo 和 Visitors 对象构建VO对象
+        ArrayList<VisitorsVo> voList = new ArrayList<>();
+        for (Visitors visitors : visitorsList){
+            UserInfo userInfo = userInfoMap.get(visitors.getVisitorUserId());
+            if (userInfo != null){
+                VisitorsVo vo = VisitorsVo.init(userInfo, visitors);
+                voList.add(vo);
+            }
+        }
+        //5.返回
+        return voList;
+    }
+
+    //小视频的点赞
 }

@@ -45,5 +45,15 @@ public class Constants {
     public static final String USER_LIKE_KEY = "USER_LIKE_KEY_";
 
     public static final String USER_NOT_LIKE_KEY = "USER_NOT_LIKE_KEY_";
+
+    public static final String VISITORS_USER = "VISITOR_USER";
+
+    //给视频点赞
+    public static final String VIDEO_LIKE_KEY = "VIDEO_LIKE";
+
+    public static final String VIDEO_COMMENT_LIKE_KEY = "VIDEO_COMMENT_LIKE";
+
+    //视频评论
+    public static final String VIDEO_COMMENT_KEY = "VIDEO_COMMENT";
 }
 

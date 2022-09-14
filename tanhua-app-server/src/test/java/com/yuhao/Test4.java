@@ -33,5 +33,13 @@ public class Test4 {
         Number number = -1;
         Number number1 = +1;
         System.out.println(number1);
+
+        String s = "av.mp4";
+        String fileEnd = s.substring(s.lastIndexOf(".") + 1);
+        System.out.println(fileEnd);
+    }
+
+    @Test
+    public void test1211(){
     }
 }

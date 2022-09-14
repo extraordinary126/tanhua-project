@@ -9,6 +9,7 @@ import com.yuhao.VO.NearUserVo;
 import com.yuhao.VO.PageResult;
 import com.yuhao.VO.TodayBest;
 import com.yuhao.bean.Mongo.RecommendUser;
+import com.yuhao.bean.Mongo.Visitors;
 import com.yuhao.bean.Question;
 import com.yuhao.bean.UserInfo;
 import com.yuhao.common.utils.Constants;
@@ -23,10 +24,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 @Service
 public class TanhuaService {
@@ -51,6 +50,9 @@ public class TanhuaService {
 
     @DubboReference
     private UserLocationApi userLocationApi;
+
+    @DubboReference
+    private VistorsApi vistorsApi;
 
     @Autowired
     private MessageService messageService;
@@ -149,8 +151,23 @@ public class TanhuaService {
     //查看佳人信息
     public TodayBest getPersonalInfo(Long userId) {
         Long toUserId = UserThreadLocalHolder.getId();
+        //根据用户id查询用户详情
         UserInfo userInfo = userInfoApi.getUserInfo(userId);
+        //根据操作人id和查看的用户id 查询两者的推荐数据
         RecommendUser recommendUser = recommendUserApi.getTwoPeopleScore(userId, toUserId);
+
+        //构造访客数据 调用api保存
+        Visitors visitors = new Visitors();
+        //被访问的id
+        visitors.setUserId(userId);
+        //visitorUserId 来访用户id  我的id
+        visitors.setVisitorUserId(UserThreadLocalHolder.getId());
+        visitors.setFrom("首页");
+        visitors.setDate(System.currentTimeMillis());
+        visitors.setVisitDate(new SimpleDateFormat("yyyyMMdd").format(new Date()));
+        visitors.setScore(recommendUser.getScore());
+        vistorsApi.save(visitors);
+
         TodayBest todayBest = TodayBest.init(userInfo, recommendUser);
         return todayBest;
     }

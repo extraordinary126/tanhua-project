@@ -25,4 +25,13 @@ public interface CommentApi {
 
     //查询谁给我点赞 评论 喜欢了 传入我的id  ,查询谁和我互动了
     List<Comment> getCommentsList(Long publishUserId, Integer page, Integer pagesize, CommentType commentType);
+
+    //视频下发布评论
+    void publishVideoComment(Comment comment);
+
+    //视频底下的评论点赞
+    Integer saveVideoComment(Comment comment);
+
+    //视频底下的评论取消点赞
+    Integer deleteVideoCommentLike(Comment comment);
 }

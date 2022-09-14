@@ -5,9 +5,9 @@ spring:
   application:
     name: tanhua-app-server
   redis:  #redis配置
-    port: 6380
-    host: 120.48.65.245
-    timeout: 1000
+    port: 6379
+    host: 192.168.10.125
+    timeout: 5000
   mail: #发邮件的配置
     default-encoding: UTF-8
     host: smtp.163.com
@@ -44,6 +44,19 @@ dubbo:    #dubbo配置
 #    templateCode: SMS_106590012
 #    accessKey: LTAI4GKgob9vZ53k2SZdyAC7
 #    secret: LHLBvXmILRoyw0niRSBuXBZewQ30la
+# ===================================================================
+# 分布式文件系统FDFS配置
+# ===================================================================
+fdfs:
+  so-timeout: 1500
+  connect-timeout: 600
+  #缩略图生成参数
+  thumb-image:
+    width: 150
+    height: 150
+  #TrackerList参数,支持多个
+  tracker-list: 192.168.10.125:22122
+  web-server-url: http://192.168.10.125:8888/
 tanhua:
   default:
     recommend:
@@ -62,3 +75,8 @@ tanhua:
     appkey: 1106220909163070#tanhua
     clientId: YXA6frREAFqBQFmPa7H2UX3uVA
     clientSecret: YXA6cylNksxDj5cFp157us4M2rqLNhE
+Spring:
+  servlet:
+    multipart:
+      max-file-size: 30MB
+      max-request-size: 30MB

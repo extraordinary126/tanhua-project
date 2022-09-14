@@ -2,6 +2,7 @@ package com.yuhao.controller;
 
 import com.yuhao.VO.MovementsVo;
 import com.yuhao.VO.PageResult;
+import com.yuhao.VO.VisitorsVo;
 import com.yuhao.bean.Mongo.Movement;
 import com.yuhao.service.CommentsService;
 import com.yuhao.service.MomentService;
@@ -11,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.List;
 
 @RestController
 @RequestMapping("/movements")
@@ -94,5 +96,13 @@ public class MomentController {
     public ResponseEntity unlove(@PathVariable("id") String movementId){
         Integer loveCount = commentsService.unlove(movementId);
         return ResponseEntity.ok(loveCount);
+    }
+
+    ///movements/visitors
+    //查看谁看过我
+    @GetMapping("/visitors")
+    public ResponseEntity queryVisitorsList(){
+        List<VisitorsVo> list = commentsService.queryVisitorsList();
+        return ResponseEntity.ok(list);
     }
 }

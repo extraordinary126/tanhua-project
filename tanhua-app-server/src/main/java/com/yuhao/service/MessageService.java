@@ -112,13 +112,11 @@ public class MessageService {
     public PageResult getWhoCommentsMe(Integer page, Integer pagesize, CommentType commentType) {
         Long currentId = UserThreadLocalHolder.getId();
         List<Comment> commentList = commentApi.getCommentsList(currentId ,page, pagesize, commentType);
-
         Map<Long, Long> createdTime = new HashMap<>();
         //得到userId List
         List<Long> userIdList = new ArrayList<>();
         for (Comment comment : commentList){
             Long userId = comment.getUserId();
-
             //记录下点赞的时间
             createdTime.put(userId, comment.getCreated());
             userIdList.add(userId);
@@ -134,6 +132,7 @@ public class MessageService {
             likeListVo.setAvatar(userInfo.getAvatar());
             likeListVo.setNickname(userInfo.getNickname());
             //从map中取出点赞时间  转换成日期字符串
+            //bug: 如果有同一个人 连续和我互动  那么将会取出同一个时间 因为HashMao的key被新的互动覆盖了
             String createdTimeStr = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(createdTime.get(userId));
             likeListVo.setCreateDate(createdTimeStr);
             voList.add(likeListVo);
