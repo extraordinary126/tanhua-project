@@ -38,7 +38,10 @@ public class MomentService {
     private UserInfoApi userInfoApi;
 
     @Autowired
-    private RedisTemplate<String,String> redisTemplate;
+    private MqMessageService mqMessageService;
+
+    @Autowired
+    private RedisTemplate<String, String> redisTemplate;
     // private StringRedisTemplate  redisTemplate;   只能存取kv都是 String类型的
     //private RedisTemplate  redisTemplate;  错误的  取的时候必报错
 
@@ -60,7 +63,9 @@ public class MomentService {
         movement.setUserId(userId);
         movement.setMedias(medias);
         //5. 调用api发布动态
-        momentApi.sendMomoent(movement);
+        String momentId = momentApi.sendMomoent(movement);
+        mqMessageService.sendAudiMessage(momentId);
+        mqMessageService.sendLogMessage(UserThreadLocalHolder.getId(), "0201", "movement", momentId);
     }
 
     //查询我的所有动态  PageResult包含数据列表 和 分页相关的数据 api层也可以只返回数据列表list就行
@@ -108,7 +113,7 @@ public class MomentService {
         }
         //4.提取动态发布人的id列表
         List<Long> idList = new ArrayList<>();
-        for(Movement movement : movementList){
+        for (Movement movement : movementList) {
             Long userId1 = movement.getUserId();
             idList.add(userId1);
         }
@@ -117,9 +122,9 @@ public class MomentService {
         Map<Long, UserInfo> userInfoMap = userInfoApi.getUserInfoMap(idList, null);
         //6.movement对象里没有用户信息 所以将 一个movement对象就构建一个VO对象
         List<MovementsVo> voList = new ArrayList<>();
-        for (Movement movement : movementList){
+        for (Movement movement : movementList) {
             UserInfo userInfo = userInfoMap.get(movement.getUserId());
-            if (userInfo != null){
+            if (userInfo != null) {
                 //转换成vo对象 缝合userInfo 和动态对象movement
                 MovementsVo movementsVo = MovementsVo.init(userInfo, movement);
 
@@ -130,11 +135,11 @@ public class MomentService {
                 //修复点赞状态的bug，判断hashKey是否存在
                 String key = Constants.MOVEMENTS_INTERACT_KEY + movement.getId().toHexString();
                 String hashKey = Constants.MOVEMENT_LIKE_HASHKEY + UserThreadLocalHolder.getId();
-                if(redisTemplate.opsForHash().hasKey(key,hashKey)) {
+                if (redisTemplate.opsForHash().hasKey(key, hashKey)) {
                     movementsVo.setHasLiked(1);
                 }
                 String loveHashKey = Constants.MOVEMENT_LOVE_HASHKEY + UserThreadLocalHolder.getId();
-                if (redisTemplate.opsForHash().hasKey(key, loveHashKey)){
+                if (redisTemplate.opsForHash().hasKey(key, loveHashKey)) {
                     movementsVo.setHasLoved(1);
                 }
 
@@ -142,7 +147,7 @@ public class MomentService {
             }
         }
         //7.构建PageResult对象返回
-        return new PageResult(page, pagesize, 0 , voList);
+        return new PageResult(page, pagesize, 0, voList);
     }
 
     //查询推荐动态
@@ -155,15 +160,15 @@ public class MomentService {
 
         //3.如果不存在 调用api 随机生成10条动态数据
         List<Movement> list = new ArrayList<>();
-        if (StringUtils.isEmpty(redisValue)){
+        if (StringUtils.isEmpty(redisValue)) {
             list = momentApi.randomMovements(pagesize);
-        }else {
+        } else {
             //4.存在,处理pid数据
             //redis 数据: "12,32,45,67,112,106,121,126,10011,10012"
             //根据page 和 pagesize 将pid 进行一个手动的分页处理
             String[] values = redisValue.split(",");
             //判断当前页的起始条数是否小于数组总数
-            if (values.length > (page - 1) * pagesize){
+            if (values.length > (page - 1) * pagesize) {
                 //使用stream流 来过滤数据
                 List<Long> pidsList = Arrays.stream(values).skip((page - 1) * pagesize).limit(pagesize)
                         //将数据转换为long类型
@@ -179,8 +184,9 @@ public class MomentService {
     }
 
     //查询单挑动态
-    public MovementsVo getSingleMoment(String id) {
-        Movement movement = momentApi.getSingleMoment(id);
+    public MovementsVo getSingleMoment(String movementId) {
+        mqMessageService.sendLogMessage(UserThreadLocalHolder.getId(), "0202", "movement", movementId);
+        Movement movement = momentApi.getSingleMoment(movementId);
         if (movement != null) {
             UserInfo userInfo = userInfoApi.getUserInfo(movement.getUserId());
             return MovementsVo.init(userInfo, movement);

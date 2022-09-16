@@ -2,6 +2,8 @@ package com.yuhao.api;
 
 import cn.hutool.core.collection.CollUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.yuhao.bean.UserInfo;
 import com.yuhao.dubbo.api.UserInfoApi;
 import com.yuhao.mappers.UserInfoMapper;
@@ -62,6 +64,13 @@ public class UserInfoApiImpl implements UserInfoApi {
         //转换为map集合 将id作为key
         Map<Long, UserInfo> map = CollUtil.fieldValueMap(userInfos, "id");
         return map;
+    }
+
+    @Override
+    public IPage getAll(Integer page, Integer pagesize) {
+        Page<UserInfo> pageInfo = new Page<>(page, pagesize);
+        Page<UserInfo> userInfoPage = userInfoMapper.selectPage(pageInfo, null);
+        return userInfoPage;
     }
 
 

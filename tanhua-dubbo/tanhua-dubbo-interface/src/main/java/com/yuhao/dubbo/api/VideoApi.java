@@ -1,5 +1,6 @@
 package com.yuhao.dubbo.api;
 
+import com.yuhao.VO.PageResult;
 import com.yuhao.bean.Mongo.FocusUser;
 import com.yuhao.bean.Mongo.Video;
 
@@ -31,4 +32,7 @@ public interface VideoApi {
 
     //视频评论数量+1
     Integer commentCountPlusOne(String id);
+
+    //根据id查询视频列表
+    PageResult getVideoListById(Integer page, Integer pagesize, Long userId);
 }

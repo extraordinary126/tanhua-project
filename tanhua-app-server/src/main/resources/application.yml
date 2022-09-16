@@ -4,6 +4,11 @@ server:
 spring:
   application:
     name: tanhua-app-server
+  rabbitmq:
+    host: 192.168.10.125
+    port: 5672
+    username: guest
+    password: guest
   redis:  #redis配置
     port: 6379
     host: 192.168.10.125

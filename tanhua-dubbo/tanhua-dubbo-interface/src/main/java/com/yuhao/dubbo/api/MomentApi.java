@@ -8,7 +8,7 @@ import java.util.List;
 public interface MomentApi {
 
     //发布动态
-    void sendMomoent(Movement movement);
+    String sendMomoent(Movement movement);
 
     //查询我的所有动态
     PageResult getMoment(Long userId, Integer page, Integer pagesize);
@@ -24,4 +24,10 @@ public interface MomentApi {
 
     //查看单条动态
     Movement getSingleMoment(String id);
+
+    //根据id 和 state查询动态
+    PageResult getMomentByIdAndState(Long uid, Integer state, Integer page, Integer pagesize);
+
+    //更新动态状态
+    void update(String movementId, Integer state);
 }

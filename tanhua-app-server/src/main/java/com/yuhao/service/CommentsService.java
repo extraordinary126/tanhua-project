@@ -39,10 +39,14 @@ public class CommentsService {
     VistorsApi vistorsApi;
 
     @Autowired
+    MqMessageService mqMessageService;
+
+    @Autowired
     RedisTemplate<String,String> redisTemplate;
 
     //提交评论              //动态ID      //评论内容
     public void comments(String movementId, String comment) {
+        mqMessageService.sendLogMessage(UserThreadLocalHolder.getId(), "0205", "movement", movementId);
         //1.获取操作用户ID
         Long userId = UserThreadLocalHolder.getId();
         //2.构造Comment
@@ -88,6 +92,7 @@ public class CommentsService {
 
     //给动态点赞
     public Integer like(String monmentId) {
+        mqMessageService.sendLogMessage(UserThreadLocalHolder.getId(), "0203", "movement", monmentId);
         Long userId = UserThreadLocalHolder.getId();
         //1.查询用户是否已经点赞
         Boolean isLiked = commentApi.isLiked(monmentId, userId, CommentType.LIKE);
@@ -116,6 +121,7 @@ public class CommentsService {
 
     //取消点赞
     public Integer dislike(String monmentId) {
+        mqMessageService.sendLogMessage(UserThreadLocalHolder.getId(), "0206", "movement", monmentId);
         Long userId = UserThreadLocalHolder.getId();
         //1.调用api查看是否已经点赞
         Boolean isLiked = commentApi.isLiked(monmentId, userId, CommentType.LIKE);
@@ -138,7 +144,7 @@ public class CommentsService {
     }
 
     public Integer love(String monmentId) {
-
+        mqMessageService.sendLogMessage(UserThreadLocalHolder.getId(), "0204", "movement", monmentId);
         Long userId = UserThreadLocalHolder.getId();
         //1.查询用户是否已经点赞/喜欢
         Boolean isloved = commentApi.isLiked(monmentId, userId, CommentType.LOVE);
@@ -166,7 +172,7 @@ public class CommentsService {
     }
 
     public Integer unlove(String monmentId) {
-
+        mqMessageService.sendLogMessage(UserThreadLocalHolder.getId(), "0207", "movement", monmentId);
         Long userId = UserThreadLocalHolder.getId();
         //1.调用api查看是否已经点赞
         Boolean isLiked = commentApi.isLiked(monmentId, userId, CommentType.LOVE);

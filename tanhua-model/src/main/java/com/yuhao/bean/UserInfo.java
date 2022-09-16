@@ -32,6 +32,7 @@ public class UserInfo extends BasePojo {
     private String coverPic; // 封面图片
 
     //用户状态,1为正常，2为冻结
+    //注解表示不在数据库中映射此属性 (此属性只是为了redis来判断)
     @TableField(exist = false)
     private String userStatus = "1";
 }

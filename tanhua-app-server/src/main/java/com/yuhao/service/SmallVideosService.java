@@ -62,10 +62,12 @@ public class SmallVideosService {
     @Autowired
     private RedisTemplate<String, String> redisTemplate;
 
+    @Autowired
+    private MqMessageService mqMessageService;
+
 
     //上传视频   封面图片   封面文件
     public void saveVideos(MultipartFile videoThumbnail, MultipartFile videoFile) throws IOException {
-
         if (videoFile == null && videoThumbnail == null) {
             //必须上传否则报错
             throw new BuinessException(ErrorResult.error());

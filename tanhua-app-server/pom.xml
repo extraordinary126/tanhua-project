@@ -87,12 +87,11 @@
             <artifactId>spring-cloud-starter-alibaba-nacos-config</artifactId>
         </dependency>
         -->
-        <!--RabbitMQ
+        <!--RabbitMQ-->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-amqp</artifactId>
         </dependency>
-        -->
         <dependency>
             <groupId>org.example</groupId>
             <artifactId>tanhua-dubbo-interface</artifactId>

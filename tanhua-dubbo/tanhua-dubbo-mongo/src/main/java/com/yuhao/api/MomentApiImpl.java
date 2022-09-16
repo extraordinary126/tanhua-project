@@ -16,6 +16,7 @@ import org.springframework.data.mongodb.core.aggregation.AggregationResults;
 import org.springframework.data.mongodb.core.aggregation.TypedAggregation;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.core.query.Update;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,7 +35,7 @@ public class MomentApiImpl implements MomentApi {
 
     //发布动态
     @Override
-    public void sendMomoent(Movement movement) {
+    public String sendMomoent(Movement movement) {
         try {
             //1.保存动态详情
 
@@ -63,11 +64,12 @@ public class MomentApiImpl implements MomentApi {
             //进行手动的事务处理
             e.printStackTrace();
         }
+        return movement.getId().toHexString();
     }
 
     @Override
     public PageResult getMoment(Long userId, Integer page, Integer pagesize) {
-        Criteria criteria = Criteria.where("userId").is(userId);
+        Criteria criteria = Criteria.where("userId").is(userId).and("state").is(1);
         Query query = Query.query(criteria)
                 .limit(pagesize)
                 .skip((page - 1) * pagesize)
@@ -82,7 +84,7 @@ public class MomentApiImpl implements MomentApi {
     @Override
     public List<Movement> getFriendMoment(Integer page, Integer pagesize, Long friendId) {
         //根据friendId查询时间线表
-        Criteria criteria = Criteria.where("friendId").is(friendId);
+        Criteria criteria = Criteria.where("friendId").is(friendId).and("state").is(1);
         Query query = Query.query(criteria)
                 .limit(pagesize)
                 .skip((page - 1) * pagesize)
@@ -129,4 +131,42 @@ public class MomentApiImpl implements MomentApi {
         Movement movement = mongoTemplate.findById(id, Movement.class);
         return movement;
     }
+
+    //根据id  和 state查询动态
+    @Override
+    public PageResult getMomentByIdAndState(Long userId, Integer state, Integer page, Integer pagesize) {
+        Query query = new Query();
+        if (userId != null){
+            query.addCriteria(Criteria.where("userId").is(userId));
+        }
+        if (state != null){
+            query.addCriteria(Criteria.where("state").is(state));
+        }
+//        Criteria criteria = null;
+//        if (userId != null){
+//             criteria = Criteria.where("userId").is(userId);
+//        }
+//        if (state != null){
+//            if (userId != null) {
+//                criteria = criteria.and("state").is(state);
+//            }else {
+//                criteria = Criteria.where("state").is(state);
+//            }
+//        }
+//        if (userId == null && state == null){
+//            criteria = new Criteria();
+//        }
+        long count = mongoTemplate.count(query, Movement.class);
+        query.limit(pagesize).skip((page - 1) * pagesize)
+                .with(Sort.by(Sort.Order.desc("created")));
+        List<Movement> movementList = mongoTemplate.find(query, Movement.class);
+        return new PageResult(page, pagesize, Math.toIntExact(count), movementList);
+    }
+
+    @Override
+    public void update(String movementId, Integer state) {
+        Query query = Query.query(Criteria.where("id").is(new ObjectId(movementId)));
+        Update update = Update.update("state",state);
+        mongoTemplate.updateFirst(query, update, Movement.class);
+    };
 }

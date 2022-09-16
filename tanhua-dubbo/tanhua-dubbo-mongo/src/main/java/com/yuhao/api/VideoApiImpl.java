@@ -2,6 +2,7 @@ package com.yuhao.api;
 
 import com.mongodb.client.result.DeleteResult;
 import com.mongodb.client.result.UpdateResult;
+import com.yuhao.VO.PageResult;
 import com.yuhao.bean.Mongo.FocusUser;
 import com.yuhao.bean.Mongo.Video;
 import com.yuhao.dubbo.api.VideoApi;
@@ -105,5 +106,16 @@ public class VideoApiImpl implements VideoApi {
         Query query = Query.query(Criteria.where("id").is(id));
         Video video = mongoTemplate.findAndModify(query, update, Video.class);
         return video.getCommentCount();
+    }
+
+    //根据id查询用户视频列表
+    @Override
+    public PageResult getVideoListById(Integer page, Integer pagesize, Long userId) {
+        Query query = Query.query(Criteria.where("userId").in(userId));
+        long count = mongoTemplate.count(query, Video.class);
+        query.limit(pagesize).skip((page - 1) * pagesize)
+                .with(Sort.by(Sort.Order.desc("created")));
+        List<Video> videoList = mongoTemplate.find(query, Video.class);
+        return new PageResult(page, pagesize, Math.toIntExact(count), videoList);
     }
 }

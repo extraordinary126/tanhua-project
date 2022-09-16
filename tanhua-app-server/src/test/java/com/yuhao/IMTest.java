@@ -29,7 +29,7 @@ public class IMTest {
     //批量注册
     @Test
     public void register() {
-        for (int i = 1; i < 140; i++) {
+        for (int i = 1; i < 137; i++) {
             User user = userApi.getUserById(Long.valueOf(i));
             if(user != null) {
                 Boolean create = huanXinTemplate.createUser("hx" + user.getId(), Constants.INIT_PASSWORD);

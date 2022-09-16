@@ -55,5 +55,11 @@ public class Constants {
 
     //视频评论
     public static final String VIDEO_COMMENT_KEY = "VIDEO_COMMENT";
+
+    //admin 管理后台
+    public static final String CAP_CODE = "CAP_CODE_";
+
+    //冻结用户状态KEY
+    public static final String USER_FREEZE = "USER_FREEZE_";
 }
 

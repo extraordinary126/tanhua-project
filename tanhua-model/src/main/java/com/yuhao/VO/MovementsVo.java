@@ -15,7 +15,7 @@ import java.util.Date;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class MovementsVo  implements Serializable {
+public class MovementsVo implements Serializable {
 
     private String id; //动态id
 
@@ -35,6 +35,7 @@ public class MovementsVo  implements Serializable {
     private Integer commentCount; //评论数
     private Integer loveCount; //喜欢数
 
+    private Integer state = 0;  //审核状态
 
     private Integer hasLiked; //是否点赞（1是，0否）
     private Integer hasLoved; //是否喜欢（1是，0否）
@@ -60,8 +61,9 @@ public class MovementsVo  implements Serializable {
         //设置是否点赞(后续处理)
         vo.setHasLoved(0);
         vo.setHasLiked(0);
-
-
+        vo.setLikeCount(item.getLikeCount());
+        vo.setCommentCount(item.getCommentCount());
+        vo.setLoveCount(item.getLoveCount());
         return vo;
     }
 }
