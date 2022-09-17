@@ -16,6 +16,7 @@
         <module>tanhua-app-server</module>
         <module>tanhua-gateway</module>
         <module>tanhua-admin</module>
+        <module>tanhua-recommend</module>
     </modules>
 
     <parent>

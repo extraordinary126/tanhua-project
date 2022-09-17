@@ -11,6 +11,7 @@
         <module name="tanhua-dubbo-interface" />
         <module name="tanhua-commons" />
         <module name="tanhua-dubbo-db" />
+        <module name="tanhua-recommend" />
         <module name="tanhua-model" />
         <module name="tanhua-dubbo-mongo" />
         <module name="tanhua-gateway" />
@@ -30,6 +31,7 @@
       <module name="tanhua-dubbo-mongo" options="-parameters" />
       <module name="tanhua-gateway" options="-parameters" />
       <module name="tanhua-model" options="-parameters" />
+      <module name="tanhua-recommend" options="-parameters" />
     </option>
   </component>
 </project>

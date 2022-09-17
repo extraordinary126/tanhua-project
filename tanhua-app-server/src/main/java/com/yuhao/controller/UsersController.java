@@ -86,4 +86,12 @@ public class UsersController {
         Map<String ,Integer> count = userInfoService.getCounts();
         return ResponseEntity.ok(count);
     }
+
+    ///users/:uid/alreadyLove
+    //get
+    @GetMapping("/{uid}/alreadyLove")
+    public ResponseEntity alreadLove(){
+
+        return ResponseEntity.ok(true);
+    }
 }

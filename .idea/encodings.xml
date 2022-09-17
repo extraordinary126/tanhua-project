@@ -12,5 +12,6 @@
     <file url="file://$PROJECT_DIR$/tanhua-dubbo/tanhua-dubbo-mongo/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/tanhua-gateway/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/tanhua-model/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/tanhua-recommend/src/main/java" charset="UTF-8" />
   </component>
 </project>

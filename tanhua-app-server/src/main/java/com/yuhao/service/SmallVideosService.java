@@ -92,6 +92,7 @@ public class SmallVideosService {
         if (StringUtils.isEmpty(videoId)) {
             throw new BuinessException(ErrorResult.error());
         }
+        mqMessageService.sendLogMessage(UserThreadLocalHolder.getId(), "0301", "video", videoId);
     }
 
 
