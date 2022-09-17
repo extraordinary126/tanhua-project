@@ -16,6 +16,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.Map;
 
+//动态监听器
 @Component
 public class RecommendMovementListener {
 
